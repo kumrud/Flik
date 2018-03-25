@@ -17,33 +17,31 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 
 
-"""
-An experimental local optimization package.
-
-Copyright (C) 2018 Ayers Lab <ayers@mcmaster.ca>.
-
-"""
-
-
-from flik.nonlinear import nonlinear_solve
-
-from flik.jacobian import Jacobian
-
-from flik.approx_jacobian import ForwardDiffJacobian
-from flik.approx_jacobian import CentralDiffJacobian
-
-from flik.line_search import LineSearch
-from flik.line_search import ConstantLineSearch
-
-from flik.trust_region import TrustRegion
+r"""Classes for trust regions."""
 
 
 __all__ = [
-    "nonlinear_solve",
-    "Jacobian",
-    "ForwardDiffJacobian",
-    "CentralDiffJacobian",
-    "LineSearch",
-    "ConstantLineSearch",
     "TrustRegion",
     ]
+
+
+class TrustRegion:
+    r"""Base trust region class."""
+
+    def __init__(self):
+        r"""Initialize the object."""
+        pass
+
+    def __call__(self, *_):
+        r"""
+        Apply the line search to the function ``f`` at position vector
+        ``x`` and direction vector ``dx``.
+
+        Parameters
+        ----------
+        dx : np.ndarray
+        x : np.ndarray
+        f : callable
+
+        """
+        pass

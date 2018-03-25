@@ -71,13 +71,6 @@ class FiniteDiffJacobian(Jacobian):
             Increment in the function's argument to use when approximating the
             Jacobian.
 
-        Raises
-        ------
-        TypeError
-            If an argument of an invalid type or shape is passed.
-        ValueError
-            If an argument passed has an unreasonable value.
-
         """
         # Check input types and values
         if n is None:
@@ -142,14 +135,14 @@ class ForwardDiffJacobian(FiniteDiffJacobian):
         # Copy x to vector dx
         dx = np.copy(x)
         # Iterate over elements of `x` to increment
-        for i in range(self._n):
+        for i, eps_i in enumerate(self._eps):
             # Add forward-epsilon increment to dx (dx = x + e_i * eps_i)
-            dx[i] += self._eps[i]
+            dx[i] += eps_i
             # Evaluate function at dx (dfx = f(dx))
             dfx = self._function(dx)
             # Calculate df[j]/dx[i] = (dfx - fx) / eps_i into dfx vector
             dfx -= fx
-            dfx /= self._eps[i]
+            dfx /= eps_i
             # Put result from dfx into the ith row of the jac matrix
             jac[i, :] = dfx
             # Reset dx = x
@@ -184,21 +177,21 @@ class CentralDiffJacobian(FiniteDiffJacobian):
         # Copy x to vector dx
         dx = np.copy(x)
         # Iterate over elements of `x` to increment
-        for i in range(self._n):
+        for i, (x_i, eps_i) in enumerate(zip(x, self._eps)):
             # Add forward-epsilon increment to dx (+dx = x + e_i * eps_i)
-            dx[i] += self._eps[i]
+            dx[i] += eps_i
             # Evaluate function at +dx (dfx2 = f(+dx))
             dfx2 = self._function(dx)
             # Add backward-epsilon increment to dx (-dx = x - e_i * eps_i)
-            dx[i] = x[i] - self._eps[i]
+            dx[i] = x_i - eps_i
             # Evaluate function at -dx (dfx1 = f(-dx))
             dfx1 = self._function(dx)
             # Calculate df[j]/dx[i] = (dfx2 - dfx1) / (2 * eps_i) into dfx2 vector
             dfx2 -= dfx1
-            dfx2 /= 2 * self._eps[i]
+            dfx2 /= 2 * eps_i
             # Put result from dfx2 into the ith row of the jac matrix
             jac[i, :] = dfx2
             # Reset dx = x
-            dx[i] = x[i]
+            dx[i] = x_i
         # df[i]/dx[j] = transpose(jac)
         return jac.transpose()

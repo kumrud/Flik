@@ -98,14 +98,14 @@ def test_nonlinear_inputs():
     assert_raises(TypeError, nonlinear_solve, "string", x_0, J=j1)
     assert_raises(TypeError, nonlinear_solve, f1, "string", J=j1)
     assert_raises(TypeError, nonlinear_solve, f1, x_0, J="string")
-    assert_raises(TypeError, nonlinear_solve, f1, x_0, J=j1, stepsize="string")
-    assert_raises(TypeError, nonlinear_solve, f1, x_0, J=j1, stepsize=np.ones((2, 2)))
+    assert_raises(TypeError, nonlinear_solve, f1, x_0, J=j1, linesearch="string")
+    assert_raises(TypeError, nonlinear_solve, f1, x_0, J=j1, linesearch=np.ones((2, 2)))
     assert_raises(TypeError, nonlinear_solve, f1, x_0, J=j1, eps="string")
     assert_raises(ValueError, nonlinear_solve, f1, x_0, J=j1, eps=-1.0)
     assert_raises(ValueError, nonlinear_solve, f1, x_0, J=j1, eps=-1)
     assert_raises(ValueError, nonlinear_solve, f1, x_0, J=j1, method="tomato")
-    assert_raises(ValueError, nonlinear_solve, f1, x_0, J=j1, stepsize=-0.1)
-    assert_raises(ValueError, nonlinear_solve, f1, x_0, J=j1, stepsize=-np.abs(x_0))
+    assert_raises(ValueError, nonlinear_solve, f1, x_0, J=j1, linesearch=-0.1)
+    assert_raises(ValueError, nonlinear_solve, f1, x_0, J=j1, linesearch=-np.abs(x_0))
     assert_raises(TypeError, nonlinear_solve, f1, x_0, J=j1, maxiter=0.)
     assert_raises(ValueError, nonlinear_solve, f1, x_0, J=j1, maxiter=-1)
     assert_raises(TypeError, nonlinear_solve, f1, x_0, J=j1, method=0)
@@ -114,7 +114,7 @@ def test_nonlinear_inputs():
 def test_nonlinear_linear_solve():
     """Test that newton solves linear systems in 1 step."""
     x_0 = np.array([1.0, 1.0])
-    result = nonlinear_solve(f4, x_0, j1, stepsize=np.array([1., 1.]), eps=1.0e-9, maxiter=1)
+    result = nonlinear_solve(f4, x_0, j1, linesearch=np.array([1., 1.]), eps=1.0e-9, maxiter=1)
     assert result["success"]
     assert result["message"] == "Convergence obtained."
     assert result["niter"] == 1
@@ -161,7 +161,7 @@ def test_nonlinear_singular_matrix_error():
 def test_nonlinear_goodbroyden():
     """Test that newton solves system with good broyden update."""
     x_0 = np.array([0.5, 0.5])
-    result = nonlinear_solve(f5, x_0, stepsize=1, eps=1.0e-6, maxiter=100, method="goodbroyden")
+    result = nonlinear_solve(f5, x_0, linesearch=1, eps=1.0e-6, maxiter=100, method="goodbroyden")
     assert result["success"]
     assert result["niter"] < 101
     assert np.allclose(result["f"], [0., 0.], rtol=1.0e-5, atol=1.0e-5)
@@ -175,7 +175,7 @@ def test_nonlinear_goodbroyden():
 def test_nonlinear_badbroyden():
     """Test that newton solves system with bad broyden update."""
     x_0 = np.array([1.1, 0.5])
-    result = nonlinear_solve(f5, x_0, stepsize=1, eps=1.0e-6, maxiter=100, method="badbroyden")
+    result = nonlinear_solve(f5, x_0, linesearch=1, eps=1.0e-6, maxiter=100, method="badbroyden")
     assert result["success"]
     assert np.allclose(result["f"], [0., 0.], rtol=1.0e-5, atol=1.0e-5)
     assert result["message"] == "Convergence obtained."
@@ -188,7 +188,7 @@ def test_nonlinear_badbroyden():
 def test_nonlinear_dfp():
     """Test that newton solves system with dfp update."""
     x_0 = np.array([3., 1.])
-    result = nonlinear_solve(f5, x_0, j5, stepsize=1, eps=1.0e-5, maxiter=1000, method="dfp")
+    result = nonlinear_solve(f5, x_0, j5, linesearch=1, eps=1.0e-5, maxiter=1000, method="dfp")
     assert result["success"]
     assert result["message"] == "Convergence obtained."
     assert np.allclose(result["f"], [0., 0.], atol=1.0e-3)
@@ -199,7 +199,7 @@ def test_nonlinear_dfp():
 def test_nonlinear_sr1():
     """Test that newton solves system with sr1 update."""
     x_0 = np.array([0.5, 0.5])
-    result = nonlinear_solve(f5, x_0, j5, stepsize=0.5, eps=1.0e-6, maxiter=100, method="sr1")
+    result = nonlinear_solve(f5, x_0, j5, linesearch=0.5, eps=1.0e-6, maxiter=100, method="sr1")
     assert result["success"]
     assert result["niter"] < 101
     assert np.allclose(result["f"], [0., 0.], rtol=1.0e-5, atol=1.0e-5)
@@ -213,7 +213,7 @@ def test_nonlinear_sr1():
 def test_nonlinear_sr1inv():
     """Test that newton solves system with sr1 inverse update."""
     x_0 = np.array([0.5, 0.5])
-    result = nonlinear_solve(f5, x_0, j5, stepsize=0.5, eps=1.0e-6, maxiter=1000, method="sr1inv")
+    result = nonlinear_solve(f5, x_0, j5, linesearch=0.5, eps=1.0e-6, maxiter=1000, method="sr1inv")
     assert result["success"]
     assert np.allclose(result["f"], [0., 0.], rtol=1.0e-5, atol=1.0e-5)
     assert result["message"] == "Convergence obtained."
@@ -225,7 +225,7 @@ def test_nonlinear_sr1inv():
 def test_nonlinear_bfgs():
     """Test that newton solves system with bfgs inverse update."""
     x_0 = np.array([0.5, 0.5])
-    result = nonlinear_solve(f5, x_0, j5, stepsize=0.5, eps=1.0e-5, maxiter=10000, method="bfgs")
+    result = nonlinear_solve(f5, x_0, j5, linesearch=0.5, eps=1.0e-5, maxiter=10000, method="bfgs")
     assert result["success"]
     assert result["niter"] < 10000
     assert np.allclose(result["f"], [0., 0.], rtol=1.0e-5, atol=1.0e-3)
