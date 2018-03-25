@@ -192,7 +192,7 @@ def _nonlinear_setup(f, J, method, linesearch, trustregion):
         raise TypeError("Argument 'method' must be a string")
     method = method.lower()
     # Get inverse flag
-    inverse = method in ("badbroyden", "bfgs", "sr1inv")
+    inverse = method.endswith("inv")
     # Get step function
     if inverse:
         step = _step_inverse
@@ -203,16 +203,16 @@ def _nonlinear_setup(f, J, method, linesearch, trustregion):
     # Get update function
     if method in ("newton", "gaussnewton"):
         update = J.update_newton
-    elif method == "goodbroyden":
+    elif method == "broyden":
         update = J.update_goodbroyden
+    elif method == "broydeninv":
+        update = J.update_badbroyden
     elif method == "dfp":
         update = J.update_dfp
+    elif method == "bfgsinv":
+        update = J.update_bfgsinv
     elif method == "sr1":
         update = J.update_sr1
-    elif method == "badbroyden":
-        update = J.update_badbroyden
-    elif method == "bfgs":
-        update = J.update_bfgs
     elif method == "sr1inv":
         update = J.update_sr1inv
     else:

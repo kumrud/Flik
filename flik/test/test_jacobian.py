@@ -240,6 +240,6 @@ def test_bfgs_secant_condition():
     df = f2(x + dx) - f2(x)
     # Compute the updated bfgs Jacobian
     bfgs = np.eye(3)
-    Jacobian.update_bfgs(bfgs, x + dx, dx, f2(x + dx) - f2(x))
+    Jacobian.update_bfgsinv(bfgs, x + dx, dx, f2(x + dx) - f2(x))
     bfgs = np.linalg.inv(bfgs)
     assert np.allclose(df, bfgs.dot(dx), atol=1e-1)

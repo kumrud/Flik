@@ -160,7 +160,7 @@ class Jacobian:
         A += t1
 
     @staticmethod
-    def update_bfgs(A, _, dx, df):
+    def update_bfgsinv(A, _, dx, df):
         r"""
         Update the Jacobian matrix ``A`` at new solution vector ``x_(k+1)``.
 

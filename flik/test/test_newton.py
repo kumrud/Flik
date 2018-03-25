@@ -161,7 +161,7 @@ def test_nonlinear_singular_matrix_error():
 def test_nonlinear_goodbroyden():
     """Test that newton solves system with good broyden update."""
     x_0 = np.array([0.5, 0.5])
-    result = nonlinear_solve(f5, x_0, linesearch=1, eps=1.0e-6, maxiter=100, method="goodbroyden")
+    result = nonlinear_solve(f5, x_0, linesearch=1, eps=1.0e-6, maxiter=100, method="broyden")
     assert result["success"]
     assert result["niter"] < 101
     assert np.allclose(result["f"], [0., 0.], rtol=1.0e-5, atol=1.0e-5)
@@ -175,7 +175,7 @@ def test_nonlinear_goodbroyden():
 def test_nonlinear_badbroyden():
     """Test that newton solves system with bad broyden update."""
     x_0 = np.array([1.1, 0.5])
-    result = nonlinear_solve(f5, x_0, linesearch=1, eps=1.0e-6, maxiter=100, method="badbroyden")
+    result = nonlinear_solve(f5, x_0, linesearch=1, eps=1.0e-6, maxiter=100, method="broydeninv")
     assert result["success"]
     assert np.allclose(result["f"], [0., 0.], rtol=1.0e-5, atol=1.0e-5)
     assert result["message"] == "Convergence obtained."
@@ -225,7 +225,7 @@ def test_nonlinear_sr1inv():
 def test_nonlinear_bfgs():
     """Test that newton solves system with bfgs inverse update."""
     x_0 = np.array([0.5, 0.5])
-    result = nonlinear_solve(f5, x_0, j5, linesearch=0.5, eps=1.0e-5, maxiter=10000, method="bfgs")
+    result = nonlinear_solve(f5, x_0, j5, linesearch=0.5, eps=1.0e-5, maxiter=10000, method="bfgsinv")
     assert result["success"]
     assert result["niter"] < 10000
     assert np.allclose(result["f"], [0., 0.], rtol=1.0e-5, atol=1.0e-3)
