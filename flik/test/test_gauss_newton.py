@@ -17,19 +17,19 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 
 
-"""Test file for `flik.nonlinear.nonlinear_solve`."""
+"""Test file for `flik.nonlinear.root`."""
 
 
 import numpy as np
 
 from nose.tools import assert_raises
 
-from flik import nonlinear_solve
+from flik import root
 
 
 __all__ = [
     "test_gauss_newton_linear_solve",
-    "test_gauss_newton_nonlinear_solve",
+    "test_gauss_newton_root",
     "test_gauss_newton_nonlinear_overdetermined_solve",
     "test_gauss_newton_nonlinear_overdetermined_solve",
     "test_gauss_newton_approximation_overdetermined",
@@ -94,7 +94,7 @@ def test_gauss_newton_linear_solve():
     """Test that gauss_newton solves linear systems in 1 step."""
     # Obtained from pg 489 of Numerical Mathematics and Computing Sixth Edition.
     x0 = np.array([100., -200.])
-    result = nonlinear_solve(f_lin, x0, j_lin, eps=1e-20, method="gaussnewton")
+    result = root(f_lin, x0, j_lin, eps=1e-20, method="gaussnewton")
     x_expt = np.array([0.4864, -1.6589])
     f_expt = np.array([0., 0.])
     jac_expt = j_lin(1.)
@@ -106,12 +106,12 @@ def test_gauss_newton_linear_solve():
     assert result['message'] == message_expt
 
 
-def test_gauss_newton_nonlinear_solve():
+def test_gauss_newton_root():
     """Test that gauss_newton solves nonlinear systems."""
     # The function being optimized is c0 + c1^2 * x^2 + c2^3 * x^3
     # The points are evaluated on [1., 2., 3.]
     x0 = np.array([20., 2.5, 500.])
-    result = nonlinear_solve(f1, x0, j1, maxiter=5000, method="gaussnewton")
+    result = root(f1, x0, j1, maxiter=5000, method="gaussnewton")
     f_expt = np.array([0.] * 3)
     x_expt = np.array([2., 3., 5.])
     message_expt = "Convergence obtained."
@@ -123,7 +123,7 @@ def test_gauss_newton_nonlinear_solve():
     assert result['message'] == message_expt
     # Because of symmetry the second coefficient of -3 should work
     x0 = np.array([200., -200., 200.])
-    result = nonlinear_solve(f1, x0, j1, maxiter=5000, method="gaussnewton")
+    result = root(f1, x0, j1, maxiter=5000, method="gaussnewton")
     x_expt = np.array([2., -3., 5.])
     jac_expt = j1(x_expt)
     assert np.allclose(f_expt, result['f'], rtol=1e-5, atol=1e-5)
@@ -137,7 +137,7 @@ def test_gauss_newton_nonlinear_overdetermined_solve():
     """Test that gauss_newton solves nonlinear, overdetermined systems."""
     # The function being optimized is c0 + c1^2 * x^2 + c2^3 * x^3
     x0 = np.array([20., 2.5, 500.])
-    result = nonlinear_solve(f3, x0, j3, method="gaussnewton")
+    result = root(f3, x0, j3, method="gaussnewton")
     f_expt = np.array([0.] * 4)
     x_expt = np.array([2., 3., 5.])
     message_expt = "Convergence obtained."
@@ -149,7 +149,7 @@ def test_gauss_newton_nonlinear_overdetermined_solve():
     assert result['message'] == message_expt
     # Because of symmetry the second coefficient of -3 should work
     x0 = np.array([1000., -200., 500.])
-    result = nonlinear_solve(f3, x0, j3, method="gaussnewton")
+    result = root(f3, x0, j3, method="gaussnewton")
     x_expt = np.array([2., -3., 5.])
     message_expt = "Convergence obtained."
     jac_expt = j3(x_expt)
@@ -166,13 +166,13 @@ def test_gauss_newton_nonlinear_underdetermined_solve():
     x_expt = np.array([2., 3., 5., 8.])
     f_expt = np.array([0.] * 3)
     x0 = np.array([2.001, 3.001, 5.001, 10.01])
-    result = nonlinear_solve(f4, x0, j4, maxiter=12, method="gaussnewton")
+    result = root(f4, x0, j4, maxiter=12, method="gaussnewton")
     message_expt = "Maximum number of iterations reached."
     assert result['message'] == message_expt
     # Repeat with a higher number of iterations and a really good initial guess
     # Still it only converges to the first decimal place.
     x0 = np.array([2.00001, 3.00001, 5.00001, 8.00001])
-    result = nonlinear_solve(f4, x0, j4, maxiter=10000, method="gaussnewton")
+    result = root(f4, x0, j4, maxiter=10000, method="gaussnewton")
     jac_expt = j4(result["x"])
     assert np.allclose(f_expt, result['f'], rtol=1e-5, atol=1e-5)
     assert np.allclose(jac_expt, result['J'], rtol=1e-5, atol=1e-5)
@@ -184,7 +184,7 @@ def test_gauss_newton_nonlinear_underdetermined_solve():
 def test_gauss_newton_approximation_overdetermined():
     """Test gauss newton using an approximation finite diff Jacobian."""
     x0 = np.array([20., 2.5, 500.])
-    result = nonlinear_solve(f3, x0, method="gaussnewton")
+    result = root(f3, x0, method="gaussnewton")
     f_expt = np.array([0.] * 4)
     x_expt = np.array([2., 3., 5.])
     message_expt = "Convergence obtained."

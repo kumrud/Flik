@@ -25,17 +25,52 @@ Copyright (C) 2018 Ayers Lab <ayers@mcmaster.ca>.
 """
 
 
-from flik.nonlinear import nonlinear_solve
-
+# Function classes (objective functions, gradients, Jacobians, Hessians)
+from flik.objective import Objective
+from flik.objective import ForwardDiffObjective
+from flik.objective import CentralDiffObjective
+from flik.objective import Objective as Gradient
+from flik.objective import ForwardDiffObjective as ForwardDiffGradient
+from flik.objective import CentralDiffObjective as CentralDiffGradient
 from flik.jacobian import Jacobian
+from flik.jacobian import ForwardDiffJacobian
+from flik.jacobian import CentralDiffJacobian
+from flik.jacobian import Jacobian as Hessian
+from flik.jacobian import ForwardDiffJacobian as ForwardDiffHessian
+from flik.jacobian import CentralDiffJacobian as CentralDiffHessian
 
-from flik.approx_jacobian import ForwardDiffJacobian
-from flik.approx_jacobian import CentralDiffJacobian
+# Line search classes
+from flik.line_search import LineSearch
+from flik.line_search import ConstantLineSearch
+from flik.line_search import QuadraticLineSearch
+from flik.line_search import CubicLineSearch
+from flik.line_search import BacktraceLineSearch
+from flik.line_search import CGLineSearch
+
+# Trust region classes
+from flik.trust_region import TrustRegion
+
+# Optimization routines
+from flik.optimize import root
+from flik.optimize import minimize
 
 
 __all__ = [
-    "nonlinear_solve",
+    "Objective",
+    "ForwardDiffObjective",
+    "CentralDiffObjective",
+    "Gradient",
+    "ForwardDiffGradient",
+    "CentralDiffGradient",
     "Jacobian",
     "ForwardDiffJacobian",
     "CentralDiffJacobian",
+    "Hessian",
+    "ForwardDiffHessian",
+    "CentralDiffHessian",
+    "LineSearch",
+    "ConstantLineSearch",
+    "TrustRegion",
+    "root",
+    "minimize",
     ]
