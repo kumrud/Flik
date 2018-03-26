@@ -34,11 +34,11 @@ __all__ = [
 class LineSearch:
     r"""Base line search class."""
 
-    def __init__(self):
+    def __init__(self, a):
         r"""Initialize the object."""
-        pass
+        self._a = a
 
-    def __call__(self, *_):
+    def __call__(self, dx):
         r"""
         Apply the line search to the function ``f`` at position vector
         ``x`` and direction vector ``dx``.
@@ -48,9 +48,30 @@ class LineSearch:
         dx : np.ndarray
         x : np.ndarray
         f : callable
+        a : float, int, np.ndarray
+            inital guess for alpha
 
         """
-        pass
+        dx *= self._a
+
+    def quad_inter(self, f, g, x, dx):
+        """
+        Quadratic interpolation
+        """
+        pz = f(x)
+        pzp = np.dot(g(x), dx)
+        pa = f(np.outer(x + self._a * dx))
+        n = - pzp * self._a**2
+        n /= 2 * (pa - pz - pzp * self._a)
+        self._a = n
+
+    @staticmethod
+    def soft_wolfe_cond(a, g, x, dx, c2=None):
+        pap = g(np.outer(x, a*dx))
+        pzp = g(x)
+        left = np.dot(dx, pap)
+        right = c2 * np.dot(dx, pzp)
+        return left >= right
 
 
 class ConstantLineSearch(LineSearch):
