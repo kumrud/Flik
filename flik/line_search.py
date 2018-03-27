@@ -38,7 +38,7 @@ __all__ = [
 class LineSearch:
     r"""Base line search class."""
 
-    def __init__(self, f, J):
+    def __init__(self, f, J, x, dx, a):
         r"""Initialize the object."""
         if not callable(f):
             raise ValueError("f must be callable")
@@ -46,6 +46,9 @@ class LineSearch:
             raise ValueError("J must be callable")
         self._function = f
         self._jacobian = J
+        self._x = x
+        self._dx = dx
+        self._a = a
 
     def __call__(self, *_):
         r"""
@@ -62,7 +65,7 @@ class LineSearch:
         pass
 
     @staticmethod
-    def fromdict(f, J, kwargs):
+    def from_dict(f, J, x, dx, a, kwargs):
         r"""
         Return a LineSearch object from a configuration dict.
 
@@ -77,19 +80,50 @@ class LineSearch:
         """
         if not isinstance(kwargs, dict):
             raise TypeError("Argument kwargs must be a dict")
+        
+        # get conditions from dict
+        if 'condition' in kwargs.keys():
+            cond = kwargs.pop("condition").lower()
+
         method = kwargs.pop("method").lower()
         if method == "constant":
-            return ConstantLineSearch(f, J, **kwargs)
+            return ConstantLineSearch(f, J, x, dx, a, cond)
         elif method == "quadratic":
-            return ConstantLineSearch(f, J, **kwargs)
+            return QuadraticLineSearch(f, J, x, dx, a, cond)
         elif method == "cubic":
-            return ConstantLineSearch(f, J, **kwargs)
+            return CubicLineSearch(f, J, x, dx, a, cond)
         elif method == "backtrace":
-            return BacktraceLineSearch(f, J, **kwargs)
+            return BacktraceLineSearch(f, J, x, dx, a, cond)
         elif method == "cg":
-            return CGLineSearch(f, J, **kwargs)
+            return CGLineSearch(f, J, x, dx, a, cond)
         else:
-            raise ValueError("Invalide 'method' argument.")
+            raise ValueError("Invalid 'method' argument.")
+
+    @staticmethod
+    def satify_conditions(f, J, x, dx, a, cond):
+        """
+        Check if line algorithm conditions are satisfied.
+        
+        Parameters
+        ----------
+        cl : list
+            list with condition names
+        """
+        satisfy = []
+        for condition in cond:
+            if condition == "soft-wolfe":
+                satisfy.append(soft_wolfe(f, J, x, dx, a))
+            if condition == "strong-wolfe":
+                satisfy.append(strong_wolfe(f, J, x, dx, a))
+            if condition == "armijo":
+                satisfy.append(armijo(f, J, x, dx, a))
+            else:
+                raise ValueError("Invalid 'condition' argument.")
+        return all(satify)
+
+    @staticmethod
+    def soft_wolfe(J, x, dx, a):
+        pass
 
 
 class ConstantLineSearch(LineSearch):
@@ -135,12 +169,20 @@ class QuadraticLineSearch(ConstantLineSearch):
     def __init__(self, f, J, constant=0.5):
         r"""
         """
-        ConstantLineSearch.__init__(self, f, J, constant=constant)
+        ConstantLineSearch.__init__(self, f, J, x, dx, a)
 
-    def __call__(self, dx, x):
+    def __call__(self):
         r"""
         """
-        raise NotImplementedError
+        while True:
+            # interpolate until conditions satisfied
+	        pz = f(x)
+            pzp = np.dot(J(x), dx)
+            pa = f(np.outer(x +  guess * dx))
+            a = - pzp * guess**2
+            a /= 2 * (pa - pz - pzp * guess)
+            if self.satisfy_conditions(f, J, x, dx, a):
+                dx *= a
 
 
 class CubicLineSearch(ConstantLineSearch):
